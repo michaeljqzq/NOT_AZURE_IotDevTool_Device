@@ -6,7 +6,6 @@ export class Transport {
     private lastMessageId: number;
     private lastSubId: number;
     private subscriptions: Subscription[];
-    private messages: any[];
     private connected: boolean;
     private clientId: string;
 
@@ -31,7 +30,7 @@ export class Transport {
 
         this.client = new Paho.MQTT.Client(ops.host, ops.port, '/$iothub/websocket', ops.clientId);
         this.client.onConnectionLost = this.onConnectionLost;
-        this.client.onMessageArrived = this.onMessageArrived;
+        this.client.onMessageArrived = this.dispatchMessage;
         //ui fill. not do here
     }
 
@@ -81,14 +80,12 @@ export class Transport {
         this.client.send(message);
     }
 
-    public unsubscribe(id: number) {
-        let subs : Subscription = this.subscriptions.find((s)=>{return s.id == id});
-        if(subs == undefined) {
-            return false;
-        }
-        this.client.unsubscribe(subs.topic);
+    public unsubscribe(subscription: Subscription) {
+        this.client.unsubscribe(subscription.topic);
+    }
 
-        // websocketclient.render.removeSubscriptionsMessages(id);
+    public getClientId() {
+        return this.clientId;
     }
 
     private onConnect() {
@@ -96,7 +93,7 @@ export class Transport {
         console.log("connected");
         //$('#publishTopic').val('devices/' + this.clientId + '/messages/events/');
         //TODO ADD INTERFACE MESSAGE, TWIN/METHODS WILL EXTEND THIS INTERFACE
-        this.subscribe('devices/' + this.clientId + '/messages/devicebound/#',0,'ffbb00');
+        // this.subscribe('devices/' + this.clientId + '/messages/devicebound/#',0,'ffbb00');
         // websocketclient.subscribe(websocketclient.twinTopic.desired,0,'7cbb00');
         // websocketclient.subscribe(websocketclient.twinTopic.response,0,'00a1f1');
         // websocketclient.subscribe(websocketclient.methodTopic.post,0,'f65314');
@@ -121,14 +118,7 @@ export class Transport {
         };
 
         console.log(messageObj);
-
-        // messageObj.id = websocketclient.render.message(messageObj);
-        this.messages.push(messageObj);
-    }
-
-    private onC2DMessage(topic,payload,messageObj) {
-        // messageObj.id = websocketclient.render.message(messageObj);
-        this.messages.push(messageObj);
+        subscription.messageHandler(messageObj.topic,messageObj.payload,messageObj);
     }
 
     private onConnectionLost(responseObject: any) {
@@ -145,7 +135,6 @@ export class Transport {
         // websocketclient.render.hide('method');
 
         //Cleanup messages
-        this.messages = [];
         // websocketclient.render.clearMessages();
 
         //Cleanup subscriptions
