@@ -1,3 +1,5 @@
+declare var CryptoJS: any;
+
 export class Util {
     static getOptionsFromConnectionString(connectionString) {
         let connectionStringArray: string[] = connectionString.replace(/\s/g, '').split(';');

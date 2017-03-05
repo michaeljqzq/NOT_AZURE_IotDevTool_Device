@@ -2,20 +2,21 @@ import {Transport} from './transport'
 import {Subscription} from './data/subscription'
 
 export class MessageHandler {
-    private topic = {
-        message:'devices/' + this.transport.getClientId() + '/messages/devicebound/#',
-        regexr: {
-            message:'devices/' + this.transport.getClientId() + '/messages/devicebound/'
-        }
-    };
-
     //private processQueue: any;
     private transport: Transport;
     private messageUICallback: Function;
     private messageSub: Subscription;
 
+    private topic: any;
+
     constructor(transport: Transport,messageUICallback: Function) {
         this.transport = transport;
+        this.topic = {
+            message:'devices/' + this.transport.getClientId() + '/messages/devicebound/#',
+            regexr: {
+                message:'devices/' + this.transport.getClientId() + '/messages/devicebound/'
+            }
+        };
         this.messageUICallback = messageUICallback;
 
         this.messageSub = {

@@ -3,7 +3,7 @@ import {MessageHandler} from './messageHandler'
 import {TwinHandler} from './twinHandler'
 import {MethodHandler} from './methodHandler'
 
-class Main{
+export class Main{
     private transport: Transport;
     private messageHandler: MessageHandler;
     private twinHandler: TwinHandler;

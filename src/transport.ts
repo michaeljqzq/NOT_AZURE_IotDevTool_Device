@@ -1,6 +1,9 @@
 import {Util} from './util';
 import {Subscription} from './data/subscription'
 
+declare var Paho: any;
+declare var moment: any;
+
 export class Transport {
     private client: any;
     private lastMessageId: number;
