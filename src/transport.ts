@@ -11,6 +11,8 @@ export class Transport {
     private subscriptions: Subscription[];
     private connected: boolean;
     private clientId: string;
+    private host: string;
+    private port: number;
 
     private options = {
             timeout: 3,
@@ -21,7 +23,7 @@ export class Transport {
             onFailure: this.onFail,
             keepAliveInterval: null,
             userName: null,
-            password: null
+            password: null,
     };
 
     constructor(connectionString: string,keepAlive: number) {
@@ -29,12 +31,25 @@ export class Transport {
         this.options.keepAliveInterval = keepAlive;
         this.options.userName = ops.username;
         this.options.password = ops.password;
+        this.host = ops.host;
+        this.port = ops.port;
         this.clientId = ops.clientId;
 
         this.client = new Paho.MQTT.Client(ops.host, ops.port, '/$iothub/websocket', ops.clientId);
         this.client.onConnectionLost = this.onConnectionLost;
         this.client.onMessageArrived = this.dispatchMessage;
         //ui fill. not do here
+    }
+
+    public getOptions() {
+        return {
+            host: this.host,
+            port: this.port,
+            username: this.options.userName,
+            password: this.options.password,
+            clientId: this.clientId,
+            keepAlive: this.options.keepAliveInterval,
+        };
     }
 
     public connect(success, fail) {
