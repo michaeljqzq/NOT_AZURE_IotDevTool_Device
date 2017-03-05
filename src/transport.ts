@@ -53,17 +53,30 @@ export class Transport {
     }
 
     public connect(success, fail) {
-        var options = {};
-        for (var key in this.options) {
-            if (success && key === 'onSuccess') {
-                options[key] = success;
-            } else if (fail && key === 'onFailure') {
-                options[key] = fail;
-            } else {
-                options[key] = this.options[key];
+        if (success) {
+            this.options.onSuccess = () => {
+                this.connected = true;
+                success();
             }
+        } else {
+            this.options.onSuccess = this.onConnect;
         }
-        this.client.connect(options);
+
+        if (fail) {
+            this.options.onFailure = (err: any) => {
+                this.connected = false;
+                fail(err);
+            }
+            this.client.onConnectionLost = (err: any) => {
+                this.connected = false;
+                fail(err);
+            }
+        } else {
+            this.options.onFailure = this.onFail;
+            this.client.onConnectionLost = this.onConnectionLost;
+        }
+
+        this.client.connect(this.options);
     }
 
     public disconnect() {
@@ -118,7 +131,7 @@ export class Transport {
 
     private onConnect() {
         this.connected = true;
-        console.log("connected");
+        console.log('connected')
         //$('#publishTopic').val('devices/' + this.clientId + '/messages/events/');
         //TODO ADD INTERFACE MESSAGE, TWIN/METHODS WILL EXTEND THIS INTERFACE
         // this.subscribe('devices/' + this.clientId + '/messages/devicebound/#',0,'ffbb00');
@@ -127,8 +140,9 @@ export class Transport {
         // websocketclient.subscribe(websocketclient.methodTopic.post,0,'f65314');
     }
 
-    private onFail() {
+    private onFail(err) {
         this.connected = false;
+        console.log(err);
         //show error
     }
 
