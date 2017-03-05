@@ -8,6 +8,8 @@ export class Main{
     private messageHandler: MessageHandler;
     private twinHandler: TwinHandler;
     private methodHandler: MethodHandler;
+    public onConnected: any;
+    public onDisconnected: any;
 
     constructor(connectionString: string,keepAlive: number) {
         this.transport = new Transport(connectionString,keepAlive);
@@ -17,7 +19,7 @@ export class Main{
     }
 
     public connect() {
-        this.transport.connect();
+        this.transport.connect(this.onConnected, this.onDisconnected);
         this.messageHandler.initialize();
         this.twinHandler.initialize();
         this.methodHandler.initialize();

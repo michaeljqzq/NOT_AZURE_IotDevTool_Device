@@ -37,8 +37,18 @@ export class Transport {
         //ui fill. not do here
     }
 
-    public connect() {
-        this.client.connect(this.options);
+    public connect(success, fail) {
+        var options = {};
+        for (var key in this.options) {
+            if (success && key === 'onSuccess') {
+                options[key] = success;
+            } else if (fail && key === 'onFailure') {
+                options[key] = fail;
+            } else {
+                options[key] = this.options[key];
+            }
+        }
+        this.client.connect(options);
     }
 
     public disconnect() {
