@@ -19,10 +19,12 @@ export class Main{
     }
 
     public connect() {
-        this.transport.connect(this.onConnected, this.onDisconnected);
-        this.messageHandler.initialize();
-        this.twinHandler.initialize();
-        this.methodHandler.initialize();
+        this.transport.connect(() => {
+            this.messageHandler.initialize();
+            this.twinHandler.initialize();
+            this.methodHandler.initialize();
+            this.onConnected();
+        }, this.onDisconnected);
     }
 
     public disconnect() {

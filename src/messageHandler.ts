@@ -9,6 +9,10 @@ export class MessageHandler {
 
     private topic: any;
 
+    public onMessageArrived = (topic: string, payload: string) => {
+
+    };
+
     constructor(transport: Transport,messageUICallback: Function) {
         this.transport = transport;
         this.topic = {
@@ -18,7 +22,9 @@ export class MessageHandler {
             }
         };
         this.messageUICallback = messageUICallback;
+    }
 
+    public initialize() {
         this.messageSub = {
             topic:this.topic.message,
             topicReg:new RegExp(this.topic.regexr.message),
@@ -26,18 +32,11 @@ export class MessageHandler {
             color:'ffbb00',
             messageHandler:this.onMessageArrived
         };
-    }
-
-    public initialize() {
         this.transport.subscribe(this.messageSub);
     }
 
     public uninitialize() {
         this.transport.unsubscribe(this.messageSub);
-    }
-
-    public onMessageArrived(topic: string,payload: string) {
-
     }
 
     public sendMessage(topic: string,payload: string, qos: number, retain: boolean) {

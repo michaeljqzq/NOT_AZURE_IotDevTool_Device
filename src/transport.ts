@@ -34,10 +34,11 @@ export class Transport {
         this.host = ops.host;
         this.port = ops.port;
         this.clientId = ops.clientId;
+        this.subscriptions = [];
 
         this.client = new Paho.MQTT.Client(ops.host, ops.port, '/$iothub/websocket', ops.clientId);
         this.client.onConnectionLost = this.onConnectionLost;
-        this.client.onMessageArrived = this.dispatchMessage;
+        this.client.onMessageArrived = this.dispatchMessage.bind(this);
         //ui fill. not do here
     }
 
@@ -52,7 +53,7 @@ export class Transport {
         };
     }
 
-    public connect(success, fail) {
+    public connect(success: Function, fail: Function) {
         if (success) {
             this.options.onSuccess = () => {
                 this.connected = true;
@@ -155,11 +156,9 @@ export class Transport {
             'retained': message.retained,
             'qos': message.qos,
             'payload': message.payloadString,
-            'timestamp': moment(),
+            'timestamp': new Date().getTime(),
             'color': subscription.color
         };
-
-        console.log(messageObj);
         subscription.messageHandler(messageObj.topic,messageObj.payload,messageObj);
     }
 
