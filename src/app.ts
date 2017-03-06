@@ -4,10 +4,10 @@ import {TwinHandler} from './twinHandler'
 import {MethodHandler} from './methodHandler'
 
 export class Main{
-    private transport: Transport;
-    private messageHandler: MessageHandler;
-    private twinHandler: TwinHandler;
-    private methodHandler: MethodHandler;
+    public transport: Transport;
+    public messageHandler: MessageHandler;
+    public twinHandler: TwinHandler;
+    public methodHandler: MethodHandler;
     public onConnected: any;
     public onDisconnected: any;
 

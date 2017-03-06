@@ -6,7 +6,7 @@ export class MethodHandler {
         post:'$iothub/methods/POST/#',
         response:'$iothub/methods/res/',
         regexr: {
-            post:'\\$iothub/methods/POST/([^/]*)/\\?\\$delay=(\\d+)',
+            post:'\\$iothub/methods/POST/([^/]*)/\\?\\$rid=(\\d+)',
         },
     };
     private registeredMethods: any;

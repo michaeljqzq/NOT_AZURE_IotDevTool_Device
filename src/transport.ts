@@ -181,18 +181,14 @@ export class Transport {
     private getSubscriptionForTopic(topic: string): Subscription {
         var i;
         for (i = 0; i < this.subscriptions.length; i++) {
-            if (this.compareTopics(topic, this.subscriptions[i].topic)) {
+            if (this.compareTopics(topic, this.subscriptions[i].topicReg)) {
                 return this.subscriptions[i];
             }
         }
         return null;
     }
 
-    private compareTopics(topic, subTopic) {
-        var pattern = subTopic.replace("+", "(.+?)").replace("#", "(.*)");
-        var regex = new RegExp("^" + pattern + "$");
-        return regex.test(topic);
+    private compareTopics(topic: string, regexr: RegExp) {
+        return regexr.test(topic);
     }
-
-
 }
