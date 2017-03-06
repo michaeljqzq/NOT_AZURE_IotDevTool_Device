@@ -21,13 +21,13 @@ export class MethodHandler {
             topic:this.topic.post,
             topicReg:new RegExp(this.topic.regexr.post),
             qos:0,
-            color:'f65314',
-            messageHandler:this.onMethodCalled
+            messageHandler: this.onMethodCalled.bind(this)
         };
         this.methodUICallback = methodUICallback;
+        this.registeredMethods = [];
     }
 
-    public addMethod(name: string,payload: string,statusCode: number,delay: number) {
+    public addMethod(name: string,payload: string, statusCode: number,delay: number) {
         if(name in this.registeredMethods) {
             alert('method name already exist!');
             return;

@@ -28,14 +28,12 @@ export class TwinHandler {
             topic:this.topic.desired,
             topicReg:new RegExp(this.topic.regexr.desired),
             qos:0,
-            color:'7cbb00',
             messageHandler:this.onTwinMessageArrived
         };
         this.responseSub = {
             topic:this.topic.response,
             topicReg:new RegExp(this.topic.regexr.response),
             qos:0,
-            color:'00a1f1',
             messageHandler:this.onGetTwinResponse
         };
         //this.processQueue = {};

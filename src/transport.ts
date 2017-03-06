@@ -100,9 +100,6 @@ export class Transport {
         }
 
         this.client.subscribe(subscription.topic, {qos: subscription.qos});
-        if (subscription.color.length < 1) {
-            subscription.color = '999999';
-        }
         this.subscriptions.push(subscription);
         return true;
     }
@@ -156,7 +153,6 @@ export class Transport {
             'qos': message.qos,
             'payload': message.payloadString,
             'timestamp': new Date().getTime(),
-            'color': subscription.color
         };
         subscription.messageHandler(messageObj.topic,messageObj.payload,messageObj);
     }

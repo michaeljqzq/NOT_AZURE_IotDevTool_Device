@@ -29,7 +29,6 @@ export class MessageHandler {
             topic:this.topic.message,
             topicReg:new RegExp(this.topic.regexr.message),
             qos:0,
-            color:'ffbb00',
             messageHandler:this.onMessageArrived
         };
         this.transport.subscribe(this.messageSub);
