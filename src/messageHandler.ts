@@ -4,7 +4,6 @@ import {Subscription} from './data/subscription'
 export class MessageHandler {
     //private processQueue: any;
     private transport: Transport;
-    private messageUICallback: Function;
     private messageSub: Subscription;
 
     private topic: any;
@@ -13,7 +12,7 @@ export class MessageHandler {
 
     };
 
-    constructor(transport: Transport,messageUICallback: Function) {
+    constructor(transport: Transport) {
         this.transport = transport;
         this.topic = {
             message:'devices/' + this.transport.getClientId() + '/messages/devicebound/#',
@@ -21,7 +20,6 @@ export class MessageHandler {
                 message:'devices/' + this.transport.getClientId() + '/messages/devicebound/'
             }
         };
-        this.messageUICallback = messageUICallback;
     }
 
     public initialize() {
@@ -29,7 +27,7 @@ export class MessageHandler {
             topic:this.topic.message,
             topicReg:new RegExp(this.topic.regexr.message),
             qos:0,
-            messageHandler:this.onMessageArrived
+            messageHandler:this.onMessageArrived.bind(this)
         };
         this.transport.subscribe(this.messageSub);
     }

@@ -13,9 +13,8 @@ export class MethodHandler {
     private transport: Transport;
     private rid: number;
     private postSub: Subscription;
-    private methodUICallback: Function;
 
-    constructor(transport: Transport,methodUICallback: Function) {
+    constructor(transport: Transport) {
         this.transport = transport;
         this.postSub = {
             topic:this.topic.post,
@@ -23,7 +22,6 @@ export class MethodHandler {
             qos:0,
             messageHandler: this._onMethodCalled.bind(this)
         };
-        this.methodUICallback = methodUICallback;
         this.registeredMethods = [];
     }
 
@@ -64,11 +62,13 @@ export class MethodHandler {
     }
 
     public onMethodCalled: (topic: string,payload: string)=>{
-        
+
     };
 
     public _onMethodCalled(topic: string,payload: string) {
-        this.onMethodCalled(topic,payload);
+        if(this.onMethodCalled) {
+            this.onMethodCalled(topic,payload);
+        }
         var reg = new RegExp(this.topic.regexr.post);
         var resultArray = reg.exec(topic);
         if(!resultArray || !resultArray[1] || !resultArray[2]) {
@@ -83,7 +83,7 @@ export class MethodHandler {
         var methodObj = this.registeredMethods[methodName];
         //websocketclient.appendToMethodTerminal('Method ' + methodName + ' called.');
         //websocketclient.appendToMethodTerminal('Will return status code:'+methodObj.statusCode+',response:'+methodObj.payload+' in '+methodObj.delay+' ms delay');
-        setTimeout(this.sendResponse.bind(null,methodObj.payload,methodObj.statusCode,rid),parseInt(methodObj.delay));
+        setTimeout(this.sendResponse.bind(this,methodObj.payload,methodObj.statusCode,rid),parseInt(methodObj.delay));
     }
 
     private checkMethodPara(payload: string,statusCode: number,delay: number) {

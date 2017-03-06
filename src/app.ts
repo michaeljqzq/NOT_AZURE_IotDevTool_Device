@@ -13,9 +13,9 @@ export class Main{
 
     constructor(connectionString: string,keepAlive: number) {
         this.transport = new Transport(connectionString,keepAlive);
-        this.messageHandler = new MessageHandler(this.transport,null);
-        this.twinHandler = new TwinHandler(this.transport,null);
-        this.methodHandler = new MethodHandler(this.transport,null);
+        this.messageHandler = new MessageHandler(this.transport);
+        this.twinHandler = new TwinHandler(this.transport);
+        this.methodHandler = new MethodHandler(this.transport);
     }
 
     public connect() {

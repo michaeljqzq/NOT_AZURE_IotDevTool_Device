@@ -13,30 +13,28 @@ export class TwinHandler {
         }
     };
 
-    //private processQueue: any;
     private transport: Transport;
-    private twinUIElement: string;
     private rid: number;
     private desiredSub: Subscription;
     private responseSub: Subscription;
-    private twinUICallback: Function;
+    private eventQueue: any;
 
-    constructor(transport: Transport,twinUICallback: Function) {
+    constructor(transport: Transport) {
         this.transport = transport;
-        this.twinUICallback = twinUICallback;
         this.desiredSub = {
             topic:this.topic.desired,
             topicReg:new RegExp(this.topic.regexr.desired),
             qos:0,
-            messageHandler:this.onTwinMessageArrived
+            messageHandler:this._onDesiredTwinUpdate.bind(this)
         };
         this.responseSub = {
             topic:this.topic.response,
             topicReg:new RegExp(this.topic.regexr.response),
             qos:0,
-            messageHandler:this.onGetTwinResponse
+            messageHandler:this.onTwinMessageArrived.bind(this)
         };
-        //this.processQueue = {};
+        this.rid = 1234;
+        this.eventQueue = {};
     }
 
     public initialize() {
@@ -49,21 +47,21 @@ export class TwinHandler {
         this.transport.unsubscribe(this.responseSub);
     }
 
-    public getTwin(doDesired: boolean,doReported: boolean) {
-        //this.processQueue[this.rid] = this.onGetTwinResponse.bind(this,doDesired,doReported);
+    public getTwin(callback: Function) {
         this.transport.publish(this.topic.get+'?$rid='+this.rid,'',0,false);
+        this.eventQueue[this.rid] = callback;
         this.rid++;
     }
 
-    public updateReported(content: string) {
+    public updateReported(content: string,callback: Function) {
         try {
             var body = JSON.parse(content);
         }catch(e) {
             alert('Reported properties is not valid JSON');
             return;
         }
-        //this.processQueue[this.rid] = this.onUpdateReportedResponse;
         this.transport.publish(this.topic.reported+'?$rid='+this.rid,content,0,false);
+        this.eventQueue[this.rid] = callback;
         this.rid++;
     }
 
@@ -73,28 +71,20 @@ export class TwinHandler {
         if(!resultArray || !resultArray[1] || !resultArray[2]) {
             return;
         }
-        //this.processQueue[resultArray[2]](payload);
-        //delete this.processQueue[resultArray[2]];
-        console.log(resultArray);
-    }
-
-    private onUpdateReportedResponse() {
-        this.getTwin(false,true);
-    }
-
-    private onUpdateDesired() {
-        this.getTwin(true,false);
-    }
-
-    private onGetTwinResponse(doDesired: boolean,doReported: boolean,topic: string,payload: string) {
-        try{
-            payload = JSON.parse(payload);
-        }catch(e){
-            console.log('Twin is not JSON format');
-            return;
+        if(resultArray[2] in this.eventQueue) {
+            this.eventQueue[resultArray[2]](topic,payload);
+            delete this.eventQueue[resultArray[2]];
         }
-        if(doDesired) 1; //TODO update ui
-        if(doReported) 1; // websocketclient.updateTextArea('#twin-reported',JSON.stringify(payload['reported'],null,2),true);
+    }
+
+    public onDesiredTwinUpdate = (topic: string,payload: string) => {
+        
+    }
+
+    public _onDesiredTwinUpdate(topic: string,payload: string) {
+        if(this.onDesiredTwinUpdate) {
+            this.onDesiredTwinUpdate(topic,payload);
+        }
     }
 
 }

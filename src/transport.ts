@@ -119,7 +119,9 @@ export class Transport {
     }
 
     public unsubscribe(subscription: Subscription) {
-        this.client.unsubscribe(subscription.topic);
+        if(subscription != undefined) {
+            this.client.unsubscribe(subscription.topic);
+        }
     }
 
     public getClientId() {
@@ -144,7 +146,6 @@ export class Transport {
     }
 
     private dispatchMessage(message: any) {
-
         var subscription = this.getSubscriptionForTopic(message.destinationName);
 
         var messageObj: any = {
