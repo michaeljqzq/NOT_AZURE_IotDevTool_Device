@@ -21,7 +21,7 @@ export class MethodHandler {
             topic:this.topic.post,
             topicReg:new RegExp(this.topic.regexr.post),
             qos:0,
-            messageHandler: this.onMethodCalled.bind(this)
+            messageHandler: this._onMethodCalled.bind(this)
         };
         this.methodUICallback = methodUICallback;
         this.registeredMethods = [];
@@ -63,7 +63,12 @@ export class MethodHandler {
         //websocketclient.appendToMethodTerminal('Response sent');
     }
 
-    public onMethodCalled(topic: string,payload: string) {
+    public onMethodCalled: (topic: string,payload: string)=>{
+        
+    };
+
+    public _onMethodCalled(topic: string,payload: string) {
+        this.onMethodCalled(topic,payload);
         var reg = new RegExp(this.topic.regexr.post);
         var resultArray = reg.exec(topic);
         if(!resultArray || !resultArray[1] || !resultArray[2]) {
@@ -84,12 +89,6 @@ export class MethodHandler {
     private checkMethodPara(payload: string,statusCode: number,delay: number) {
         if(isNaN(statusCode) || isNaN(delay)) {
             alert('status code and delay must be integer');
-            return false;
-        }
-        try{
-            JSON.parse(payload);
-        }catch(e){
-            alert('payload is not JSON format');
             return false;
         }
         return true;
