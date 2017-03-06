@@ -1,6 +1,8 @@
 import {Util} from './util';
 import {Subscription} from './data/subscription'
 
+declare var Paho: any;
+
 export class Transport {
     private client: any;
     private lastMessageId: number;
@@ -8,6 +10,8 @@ export class Transport {
     private subscriptions: Subscription[];
     private connected: boolean;
     private clientId: string;
+    private host: string;
+    private port: number;
 
     private options = {
             timeout: 3,
@@ -18,7 +22,7 @@ export class Transport {
             onFailure: this.onFail,
             keepAliveInterval: null,
             userName: null,
-            password: null
+            password: null,
     };
 
     constructor(connectionString: string,keepAlive: number) {
@@ -26,15 +30,52 @@ export class Transport {
         this.options.keepAliveInterval = keepAlive;
         this.options.userName = ops.username;
         this.options.password = ops.password;
+        this.host = ops.host;
+        this.port = ops.port;
         this.clientId = ops.clientId;
+        this.subscriptions = [];
 
         this.client = new Paho.MQTT.Client(ops.host, ops.port, '/$iothub/websocket', ops.clientId);
         this.client.onConnectionLost = this.onConnectionLost;
-        this.client.onMessageArrived = this.dispatchMessage;
+        this.client.onMessageArrived = this.dispatchMessage.bind(this);
         //ui fill. not do here
     }
 
-    public connect() {
+    public getOptions() {
+        return {
+            host: this.host,
+            port: this.port,
+            username: this.options.userName,
+            password: this.options.password,
+            clientId: this.clientId,
+            keepAlive: this.options.keepAliveInterval,
+        };
+    }
+
+    public connect(success: Function, fail: Function) {
+        if (success) {
+            this.options.onSuccess = () => {
+                this.connected = true;
+                success();
+            }
+        } else {
+            this.options.onSuccess = this.onConnect;
+        }
+
+        if (fail) {
+            this.options.onFailure = (err: any) => {
+                this.connected = false;
+                fail(err);
+            }
+            this.client.onConnectionLost = (err: any) => {
+                this.connected = false;
+                fail(err);
+            }
+        } else {
+            this.options.onFailure = this.onFail;
+            this.client.onConnectionLost = this.onConnectionLost;
+        }
+
         this.client.connect(this.options);
     }
 
@@ -90,7 +131,7 @@ export class Transport {
 
     private onConnect() {
         this.connected = true;
-        console.log("connected");
+        console.log('connected')
         //$('#publishTopic').val('devices/' + this.clientId + '/messages/events/');
         //TODO ADD INTERFACE MESSAGE, TWIN/METHODS WILL EXTEND THIS INTERFACE
         // this.subscribe('devices/' + this.clientId + '/messages/devicebound/#',0,'ffbb00');
@@ -99,8 +140,9 @@ export class Transport {
         // websocketclient.subscribe(websocketclient.methodTopic.post,0,'f65314');
     }
 
-    private onFail() {
+    private onFail(err) {
         this.connected = false;
+        console.log(err);
         //show error
     }
 
@@ -113,11 +155,9 @@ export class Transport {
             'retained': message.retained,
             'qos': message.qos,
             'payload': message.payloadString,
-            'timestamp': moment(),
+            'timestamp': new Date().getTime(),
             'color': subscription.color
         };
-
-        console.log(messageObj);
         subscription.messageHandler(messageObj.topic,messageObj.payload,messageObj);
     }
 

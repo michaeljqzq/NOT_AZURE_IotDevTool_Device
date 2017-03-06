@@ -3,11 +3,13 @@ import {MessageHandler} from './messageHandler'
 import {TwinHandler} from './twinHandler'
 import {MethodHandler} from './methodHandler'
 
-class Main{
+export class Main{
     private transport: Transport;
     private messageHandler: MessageHandler;
     private twinHandler: TwinHandler;
     private methodHandler: MethodHandler;
+    public onConnected: any;
+    public onDisconnected: any;
 
     constructor(connectionString: string,keepAlive: number) {
         this.transport = new Transport(connectionString,keepAlive);
@@ -17,10 +19,12 @@ class Main{
     }
 
     public connect() {
-        this.transport.connect();
-        this.messageHandler.initialize();
-        this.twinHandler.initialize();
-        this.methodHandler.initialize();
+        this.transport.connect(() => {
+            this.messageHandler.initialize();
+            this.twinHandler.initialize();
+            this.methodHandler.initialize();
+            this.onConnected();
+        }, this.onDisconnected);
     }
 
     public disconnect() {

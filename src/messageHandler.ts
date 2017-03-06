@@ -2,22 +2,29 @@ import {Transport} from './transport'
 import {Subscription} from './data/subscription'
 
 export class MessageHandler {
-    private topic = {
-        message:'devices/' + this.transport.getClientId() + '/messages/devicebound/#',
-        regexr: {
-            message:'devices/' + this.transport.getClientId() + '/messages/devicebound/'
-        }
-    };
-
     //private processQueue: any;
     private transport: Transport;
     private messageUICallback: Function;
     private messageSub: Subscription;
 
+    private topic: any;
+
+    public onMessageArrived = (topic: string, payload: string) => {
+
+    };
+
     constructor(transport: Transport,messageUICallback: Function) {
         this.transport = transport;
+        this.topic = {
+            message:'devices/' + this.transport.getClientId() + '/messages/devicebound/#',
+            regexr: {
+                message:'devices/' + this.transport.getClientId() + '/messages/devicebound/'
+            }
+        };
         this.messageUICallback = messageUICallback;
+    }
 
+    public initialize() {
         this.messageSub = {
             topic:this.topic.message,
             topicReg:new RegExp(this.topic.regexr.message),
@@ -25,18 +32,11 @@ export class MessageHandler {
             color:'ffbb00',
             messageHandler:this.onMessageArrived
         };
-    }
-
-    public initialize() {
         this.transport.subscribe(this.messageSub);
     }
 
     public uninitialize() {
         this.transport.unsubscribe(this.messageSub);
-    }
-
-    public onMessageArrived(topic: string,payload: string) {
-
     }
 
     public sendMessage(topic: string,payload: string, qos: number, retain: boolean) {
