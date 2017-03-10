@@ -35,7 +35,7 @@ export class Transport {
         this.clientId = ops.clientId;
         this.subscriptions = [];
 
-        this.client = new Paho.MQTT.Client(ops.host, ops.port, '/$iothub/websocket', ops.clientId);
+        this.client = new Paho.MQTT.Client(ops.host, ops.port, '/$iothub/websocket?iothub-no-client-cert=true', ops.clientId);
         this.client.onConnectionLost = this.onConnectionLost;
         this.client.onMessageArrived = this.dispatchMessage.bind(this);
         //ui fill. not do here
