@@ -1,4 +1,5 @@
 declare var CryptoJS: any;
+declare var localStorage: any;
 
 export class Util {
     static getOptionsFromConnectionString(connectionString) {
@@ -13,7 +14,7 @@ export class Util {
         options.host = connectionObject.HostName;
         options.port = 443;
         options.clientId = connectionObject.DeviceId;
-        options.username = connectionObject.HostName + '/' + connectionObject.DeviceId + '/DeviceClientType=azure-iot-device%2F1.1.2&api-version=2016-11-14';
+        options.username = connectionObject.HostName + '/' + connectionObject.DeviceId + '/DeviceClientType=iotdevtool.com%2F20170413%2F' + this.getUUID() + '&api-version=2016-11-14';
         options.password = this.getSaSToken(connectionObject);
         return options;
     }
@@ -33,5 +34,17 @@ export class Util {
         return encodeURIComponent(str).replace(/[!'()*]/g, function(c) {
             return '%' + c.charCodeAt(0).toString(16);
         });
+    }
+
+    static getUUID() {
+        var uuid = localStorage.getItem("uuid");
+        if(uuid === null) {
+            uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+                return v.toString(16);
+            }); // RFC4122 version 4 compatible solution
+            localStorage.setItem("uuid",uuid);
+        }
+        return uuid;
     }
 }
